@@ -42,8 +42,8 @@ static void show_splash_screen(void)
 
 static void show_idle_screen(void)
 {
-    // this screen should include the result of the last measurement, if any
-    // the variable 'measured_length', which stores the result, has scope here
+    // this screen should include the result of the last measurement, if any.
+    // (the variable 'measured_length', which stores the result, has scope here)
     return;
 }
 
