@@ -56,5 +56,5 @@ void laser_measure(struct laser *laser)
         double meters = d / 100000.0;
         
         laser->last_measurement = meters;
-    }
+    } 
 }

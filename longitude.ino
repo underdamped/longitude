@@ -7,6 +7,7 @@
 #include <math.h>
 #include "longitude.h"
 
+
 // local routines
 static double calc_length(double theta, double a, double b);
 
@@ -15,6 +16,8 @@ static struct laser laser_left;
 static struct laser laser_right;
 
 enum FSM state;
+
+void button_setup(void);
 
 bool button[TOTAL_BUTTONS];
 double measured_length;
@@ -32,16 +35,18 @@ void loop()
 
                 setup();
                 update_display();
-
                 state = STATE_IDLE;
                 break;
 
             case STATE_IDLE: // waiting for user input
 
-                update_display();
+                update_display();       
+                state = WAIT_LASER_ON;                
+                break;
+                
+            case WAIT_LASER_ON:
                 check_buttons();
-
-                if ( button[0] == true ) // button[0] is the "measure" button
+                if ( button[0] == false ) // button[0] is the "measure" button
                 {
                     laser_on( &laser_left );
                     laser_on( &laser_right );
@@ -49,12 +54,17 @@ void loop()
                     state = STATE_LASERS_ON;
                 }
                 break;
-
             case STATE_LASERS_ON: // user is aiming the lasers
+                
+                update_display();
+                state = WAIT_MEASURE;                 
+                break;
+                
+            case WAIT_MEASURE:
 
-                check_buttons();
+                check_buttons();                
 
-                if ( button[0] == true ) // user wants a measurement
+                if ( button[0] == false ) // user wants a measurement
                 {
                     angle = get_angle();
 
@@ -65,14 +75,20 @@ void loop()
 
                     state = STATE_MEASURE;
                 }
-
                 break;
-
+                
             case STATE_MEASURE: // show measurement results
+                  update_display();
+                  state = WAIT_IDLE;
+                  break;
 
-                    update_display();
-                    state = STATE_IDLE;
-                    break;
+            case WAIT_IDLE:
+                check_buttons();
+                if ( button[0] == false ) // user wants to move to main screen
+                {
+                  state = STATE_IDLE;
+                }
+                break;
 
             default: // should never happen, but go to known state if we're totally hosed
                 state = STATE_INIT;
@@ -87,11 +103,14 @@ void setup()
     // for debugging
     Serial.begin(115200);
 
-    // initialize buttons to inactive/false state
+
+    // initialize buttons to inactive/true state
     for ( i = 0; i < TOTAL_BUTTONS; i++ )
-      button[i] = false;
+      button[i] = true;
 
     adc_setup();
+    button_setup();
+    display_setup();
     laser_setup( &laser_left, &laser_right );
 }
     
