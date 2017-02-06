@@ -21,7 +21,7 @@
 //  12-bit      240 SPS     -2048      2047     1000.000     235.85 SPS
 
 // set to N = {12, 14, 16, 18} for native (non-oversampled) resolution, e.g., 18 for 18-bit
-#define RESOLUTION 16
+#define RESOLUTION 18
 
 // the MCP3421 is a delta-sigma converter, which uses oversampling internally, so
 // there's little benefit in adding another oversampling/decimation layer here.

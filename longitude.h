@@ -13,7 +13,7 @@
 #define TOTAL_BUTTONS 4
 
 // FSM states
-extern enum FSM { STATE_INIT, STATE_IDLE, STATE_LASERS_ON, STATE_MEASURE } state;
+extern enum FSM { STATE_INIT, STATE_IDLE, WAIT_LASER_ON, STATE_LASERS_ON, WAIT_MEASURE, STATE_MEASURE, WAIT_IDLE } state;
 
 // laser data object
 struct laser
@@ -42,9 +42,11 @@ int adc_setup(void);
 double get_angle(void);
 
 // longitude_buttons.c
+void button_setup(void);
 void check_buttons(void);
 
 // longitude_display.c
+void display_setup(void);
 void update_display(void);
 
 #endif
