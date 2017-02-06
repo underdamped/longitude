@@ -9,7 +9,7 @@
 
 #include <HardwareSerial.h>
 
-#define VERSION 0.1
+#define VERSION 0.2
 #define TOTAL_BUTTONS 4
 
 // FSM states

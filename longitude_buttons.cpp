@@ -1,5 +1,8 @@
 /*
  * Longitude button handlers
+ *
+ * Moises Beato
+ * February 2017
  */
 #include "longitude.h"
 #include "Arduino.h"

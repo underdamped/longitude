@@ -1,7 +1,7 @@
 /*
  * Longitude main loop (state machine)
  * 
- * Javier Lombillo
+ * Javier Lombillo, Moises Beato
  * February 2017
  */
 #include <math.h>
@@ -45,6 +45,7 @@ void loop()
                 break;
                 
             case WAIT_LASER_ON:
+
                 check_buttons();
                 if ( button[0] == false ) // button[0] is the "measure" button
                 {
@@ -54,6 +55,7 @@ void loop()
                     state = STATE_LASERS_ON;
                 }
                 break;
+
             case STATE_LASERS_ON: // user is aiming the lasers
                 
                 update_display();
@@ -78,11 +80,13 @@ void loop()
                 break;
                 
             case STATE_MEASURE: // show measurement results
+
                   update_display();
                   state = WAIT_IDLE;
                   break;
 
             case WAIT_IDLE:
+
                 check_buttons();
                 if ( button[0] == false ) // user wants to move to main screen
                 {
