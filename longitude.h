@@ -9,8 +9,12 @@
 
 #include <HardwareSerial.h>
 
-#define VERSION 0.2
+#define VERSION 0.3
 #define TOTAL_BUTTONS 4
+
+// we're using active-low logic for the buttons; these make the code more readable
+#define ACTIVE LOW
+#define INACTIVE HIGH
 
 // FSM states
 extern enum FSM { STATE_INIT, STATE_IDLE, WAIT_LASER_ON, STATE_LASERS_ON, WAIT_MEASURE, STATE_MEASURE, WAIT_IDLE } state;
@@ -34,8 +38,8 @@ extern double measured_length;
 // longitude_lasers.c
 void laser_setup(struct laser *, struct laser *);
 void laser_on(struct laser *);
-void laser_off(struct laser *);
 void laser_measure(struct laser *);
+void laser_read_data(struct laser *);
 
 // longitude_adc.c
 int adc_setup(void);

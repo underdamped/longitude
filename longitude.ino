@@ -7,7 +7,6 @@
 #include <math.h>
 #include "longitude.h"
 
-
 // local routines
 static double calc_length(double theta, double a, double b);
 
@@ -47,34 +46,42 @@ void loop()
             case WAIT_LASER_ON:
 
                 check_buttons();
-                if ( button[0] == false ) // button[0] is the "measure" button
+                if ( button[0] == ACTIVE ) // button[0] is the "measure" button
                 {
                     laser_on( &laser_left );
                     laser_on( &laser_right );
 
                     state = STATE_LASERS_ON;
+                    button[0] = INACTIVE; // reset button state
                 }
                 break;
 
             case STATE_LASERS_ON: // user is aiming the lasers
-                
+
                 update_display();
                 state = WAIT_MEASURE;                 
                 break;
                 
-            case WAIT_MEASURE:
+            case WAIT_MEASURE: // spin here until user presses button
 
                 check_buttons();                
 
-                if ( button[0] == false ) // user wants a measurement
+                if ( button[0] == ACTIVE ) // user wants a measurement
                 {
-                    angle = get_angle();
-
+                    // the lasers require time to take a measurement, so we'll send the measure command first
                     laser_measure( &laser_left );
                     laser_measure( &laser_right );
 
+                    // while the lasers are doing their thing, get the sensor angle
+                    angle = get_angle();
+
+                    // finally, check the serial buses for measurement data
+                    laser_read_data( &laser_left );
+                    laser_read_data( &laser_right );
+
                     measured_length = calc_length( angle, laser_left.last_measurement, laser_right.last_measurement );
 
+                    button[0] = INACTIVE;
                     state = STATE_MEASURE;
                 }
                 break;
@@ -85,11 +92,12 @@ void loop()
                   state = WAIT_IDLE;
                   break;
 
-            case WAIT_IDLE:
+            case WAIT_IDLE: // spin here until user presses button
 
                 check_buttons();
-                if ( button[0] == false ) // user wants to move to main screen
+                if ( button[0] == ACTIVE ) // user wants to move to main screen
                 {
+                  button[0] = INACTIVE;
                   state = STATE_IDLE;
                 }
                 break;
@@ -104,13 +112,9 @@ void setup()
 {
     int i;
 
-    // for debugging
-    Serial.begin(115200);
-
-
-    // initialize buttons to inactive/true state
+    // initialize buttons to inactive state
     for ( i = 0; i < TOTAL_BUTTONS; i++ )
-      button[i] = true;
+      button[i] = INACTIVE;
 
     adc_setup();
     button_setup();

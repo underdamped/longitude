@@ -13,13 +13,15 @@
 #define button_4 22
 
 static bool get_button_state(int);
+
 void button_setup(void)
 {
- pinMode(button_1, INPUT);
- pinMode(button_2, INPUT);
- pinMode(button_3, INPUT);
- pinMode(button_4, INPUT);
+  pinMode(button_1, INPUT_PULLUP);
+  pinMode(button_2, INPUT_PULLUP);
+  pinMode(button_3, INPUT_PULLUP);
+  pinMode(button_4, INPUT_PULLUP);
 }
+
 void check_buttons(void)
 {
     int i;
@@ -32,7 +34,8 @@ void check_buttons(void)
 // code stub for reading from GPIO pins
 static bool get_button_state(int butt)
 {
-   int button_state;
+   bool button_state;
+   
    switch(butt)
    {
     case 0:
@@ -50,6 +53,6 @@ static bool get_button_state(int butt)
     default:
       break;            
    }
-    delay(50);
-    return button_state;
+   delay(1);
+   return button_state;
 }
