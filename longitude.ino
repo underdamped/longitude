@@ -18,7 +18,6 @@ enum FSM state;
 
 void button_setup(void);
 
-bool button[TOTAL_BUTTONS];
 double measured_length;
 
 void loop()
@@ -33,40 +32,37 @@ void loop()
             case STATE_INIT: // start-up state, where we initialize things
 
                 setup();
-                update_display();
+                update_display(); // In this state we show splash screen
                 state = STATE_IDLE;
                 break;
 
             case STATE_IDLE: // waiting for user input
 
-                update_display();       
+                update_display();    // in this state we show idle screen
                 state = WAIT_LASER_ON;                
                 break;
                 
             case WAIT_LASER_ON:
-
-                check_buttons();
-                if ( button[0] == ACTIVE ) // button[0] is the "measure" button
+                
+                if ( b_measure.state == ACTIVE ) 
                 {
                     laser_on( &laser_left );
                     laser_on( &laser_right );
 
                     state = STATE_LASERS_ON;
-                    button[0] = INACTIVE; // reset button state
+                    b_measure.state = INACTIVE; // reset button state
                 }
                 break;
 
             case STATE_LASERS_ON: // user is aiming the lasers
 
-                update_display();
+                update_display(); // we show idle screen + laser on messege 
                 state = WAIT_MEASURE;                 
                 break;
                 
             case WAIT_MEASURE: // spin here until user presses button
 
-                check_buttons();                
-
-                if ( button[0] == ACTIVE ) // user wants a measurement
+                if ( b_measure.state == ACTIVE ) // user wants a measurement
                 {
                     // the lasers require time to take a measurement, so we'll send the measure command first
                     laser_measure( &laser_left );
@@ -81,23 +77,22 @@ void loop()
 
                     measured_length = calc_length( angle, laser_left.last_measurement, laser_right.last_measurement );
 
-                    button[0] = INACTIVE;
+                    b_measure.state = INACTIVE;
                     state = STATE_MEASURE;
                 }
                 break;
                 
             case STATE_MEASURE: // show measurement results
 
-                  update_display();
+                  update_display(); // in this state we show the measured length
                   state = WAIT_IDLE;
                   break;
 
             case WAIT_IDLE: // spin here until user presses button
 
-                check_buttons();
-                if ( button[0] == ACTIVE ) // user wants to move to main screen
+                if ( b_measure.state == ACTIVE ) // user wants to move to main screen
                 {
-                  button[0] = INACTIVE;
+                  b_measure.state = INACTIVE;
                   state = STATE_IDLE;
                 }
                 break;
@@ -110,12 +105,6 @@ void loop()
 
 void setup()
 {
-    int i;
-
-    // initialize buttons to inactive state
-    for ( i = 0; i < TOTAL_BUTTONS; i++ )
-      button[i] = INACTIVE;
-
     adc_setup();
     button_setup();
     display_setup();

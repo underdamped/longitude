@@ -7,7 +7,7 @@
 #include "longitude.h"
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
-#include "SPI.h"
+//#include "SPI.h"
 
 // TFT setup
 #define TFT_DC 20

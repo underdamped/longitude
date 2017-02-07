@@ -9,8 +9,7 @@
 
 #include <HardwareSerial.h>
 
-#define VERSION 0.3
-#define TOTAL_BUTTONS 4
+#define VERSION 0.4
 
 // we're using active-low logic for the buttons; these make the code more readable
 #define ACTIVE LOW
@@ -28,8 +27,17 @@ struct laser
     double last_measurement;
 };
 
-// holds state of each button
-extern bool button[TOTAL_BUTTONS];
+// button object
+struct btn
+{
+    volatile bool state;   // ACTIVE or INACTIVE
+    uint8_t pin;   
+};
+extern struct btn b_measure; //button to measure and select
+extern struct btn b_mode;    //button to switch nmode
+extern struct btn b_UP;      
+extern struct btn b_DN;      
+
 
 // global so display routines can see it
 extern double measured_length;
@@ -47,7 +55,6 @@ double get_angle(void);
 
 // longitude_buttons.c
 void button_setup(void);
-void check_buttons(void);
 
 // longitude_display.c
 void display_setup(void);
