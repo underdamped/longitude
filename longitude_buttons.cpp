@@ -20,6 +20,10 @@ void ISR_DN(void);
 void button_setup(void)
 {
   //declare button pins
+  b_measure.pin = 5;
+  b_mode.pin    = 4;
+  b_UP.pin      = 3;
+  b_DN.pin      = 2;
 
   //initialize buttons as inactive 
   b_measure.state = INACTIVE;
