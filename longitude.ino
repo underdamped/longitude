@@ -23,7 +23,8 @@ double measured_length;
 void loop()
 {
     double angle;
-
+    show_bat_percent();  // real time battery percentage updates
+    show_bat_icon();     // update battery icon every 5 seconds
     // program behavior is driven by an FSM
     while (1)
     {

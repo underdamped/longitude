@@ -9,11 +9,14 @@
 
 #include <HardwareSerial.h>
 
-#define VERSION 0.4
+#define VERSION 0.5
 
 // we're using active-low logic for the buttons; these make the code more readable
 #define ACTIVE LOW
 #define INACTIVE HIGH
+
+// global variable 
+extern uint8_t voltage_percentage;
 
 // FSM states
 extern enum FSM { STATE_INIT, STATE_IDLE, WAIT_LASER_ON, STATE_LASERS_ON, WAIT_MEASURE, STATE_MEASURE, WAIT_IDLE } state;
@@ -59,5 +62,17 @@ void button_setup(void);
 // longitude_display.c
 void display_setup(void);
 void update_display(void);
+void show_bat_percent(void);
+void show_bat_level_100(void);
+void show_bat_level_75(void);
+void show_bat_level_50(void);
+void show_bat_level_25(void);
+void show_bat_level_15(void);
+
+// longitude_battery.c
+void get_bat_level(void);
+void show_bat_icon(void);
+void update_bat_level(void); 
+
 
 #endif
