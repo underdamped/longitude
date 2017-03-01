@@ -29,8 +29,8 @@ static void show_measure_screen(void);
 
 void display_setup(void)
 {
-      
-  tft.begin(HX8357D); // initiate Display
+      // initiate Display
+  tft.begin(HX8357D);
   tft.setRotation(3); //header cables facing left
 }
 // what we show on the screen depends on our state
@@ -44,22 +44,18 @@ void update_display(void)
 
         case STATE_IDLE:
             show_idle_screen();
-            update_bat_level();
             break;
 
         case STATE_LASERS_ON:
             show_laser_on_screen();
-            update_bat_level();
             break;
 
         case STATE_MEASURE:
             show_measure_screen();
-            update_bat_level();
             break;
 
         default:
             show_idle_screen();
-            update_bat_level();
     }
 }
 
@@ -229,48 +225,3 @@ static void show_measure_screen(void)
   tft.print(laser_left.last_measurement,3);  
     return;
 }
-// battery level functions
-void show_bat_level_100(void){
-  tft.setFont(); // default font
-  tft.fillRoundRect(392,42,16,26,3,HX8357_BLACK);
-  tft.drawRoundRect(390,40,20,30,5,HX8357_WHITE);
-  tft.fillRoundRect(392,42,16,26,3,HX8357_GREEN);
-}
-
-void show_bat_level_75(void){
-  tft.setFont(); // default font
-  tft.fillRoundRect(392,42,16,26,3,HX8357_BLACK);
-  tft.drawRoundRect(390,40,20,30,5,HX8357_WHITE);
-  tft.fillRoundRect(392,50,16,18,3,HX8357_GREEN);
-}
-
-void show_bat_level_50(void){
-  tft.setFont(); // default font
-  tft.fillRoundRect(392,42,16,26,3,HX8357_BLACK);
-  tft.drawRoundRect(390,40,20,30,5,HX8357_WHITE);
-  tft.fillRoundRect(392,55,16,13,3,HX8357_GREEN);
-}
-
-void show_bat_level_25(void){
-  tft.setFont(); // default font
-  tft.fillRoundRect(392,42,16,26,3,HX8357_BLACK);
-  tft.drawRoundRect(390,40,20,30,5,HX8357_WHITE);
-  tft.fillRoundRect(392,60,16,8,3,HX8357_YELLOW);
-}
-
-void show_bat_level_15(void){
-  tft.setFont(); // default font
-  tft.fillRoundRect(392,42,16,26,3,HX8357_BLACK);
-  tft.drawRoundRect(390,40,20,30,5,HX8357_WHITE);
-  tft.fillRoundRect(392,65,16,3,3,HX8357_RED);
-
-}
-void show_bat_percent(void)
-{ //show the battery percentage
-  get_bat_level();
-  tft.setFont();
-  tft.setTextSize(2);
-  tft.setCursor(420,50);
-  tft.printf("%d \%",voltage_percentage);
-}
-
