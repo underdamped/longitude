@@ -9,7 +9,7 @@
 
 #include <HardwareSerial.h>
 
-#define VERSION 0.4
+#define VERSION 0.5
 
 // we're using active-low logic for the buttons; these make the code more readable
 #define ACTIVE LOW
@@ -41,6 +41,10 @@ extern struct btn b_DN;
 
 // global so display routines can see it
 extern double measured_length;
+extern uint8_t voltage_percentage;
+extern struct laser laser_left;
+extern struct laser laser_right;
+extern double angle;
 
 
 // longitude_lasers.c
@@ -59,5 +63,16 @@ void button_setup(void);
 // longitude_display.c
 void display_setup(void);
 void update_display(void);
+void show_bat_percent(void);
+void show_bat_level_100(void);
+void show_bat_level_75(void);
+void show_bat_level_50(void);
+void show_bat_level_25(void);
+void show_bat_level_15(void);
+
+// longitude_battery.c
+void get_bat_level(void);
+void update_bat_level(void); 
+
 
 #endif

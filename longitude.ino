@@ -11,19 +11,18 @@
 static double calc_length(double theta, double a, double b);
 
 // the laser "objects"
-static struct laser laser_left;
-static struct laser laser_right;
+struct laser laser_left;
+struct laser laser_right;
 
 enum FSM state;
 
 void button_setup(void);
 
 double measured_length;
+double angle;
 
 void loop()
 {
-    double angle;
-
     // program behavior is driven by an FSM
     while (1)
     {
