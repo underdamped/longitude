@@ -29,11 +29,11 @@ void get_bat_level(void)
 void update_bat_level(void)
 {
 	//dispays battery icon an level on the upper right corner of the screen
-	if (voltage_percentage > 75)
+	if (voltage_percentage > 85)
 		show_bat_level_100();
    
-	else if (voltage_percentage < 75 && voltage_percentage > 50)
-		show_bat_level_75();
+	else if (voltage_percentage < 85 && voltage_percentage > 50)
+		show_bat_level_85();
     
 	else if (voltage_percentage < 50 && voltage_percentage > 25)
 		show_bat_level_50();

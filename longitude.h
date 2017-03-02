@@ -65,7 +65,7 @@ void display_setup(void);
 void update_display(void);
 void show_bat_percent(void);
 void show_bat_level_100(void);
-void show_bat_level_75(void);
+void show_bat_level_85(void);
 void show_bat_level_50(void);
 void show_bat_level_25(void);
 void show_bat_level_15(void);

@@ -16,8 +16,6 @@ struct laser laser_right;
 
 enum FSM state;
 
-void button_setup(void);
-
 double measured_length;
 double angle;
 

@@ -204,7 +204,7 @@ void show_bat_percent(void)
   tft.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   tft.setFont(Arial_14);
   tft.setCursor(265,50);
-  tft.printf("%d \%",voltage_percentage);
+  tft.print(voltage_percentage);
   tft.setCursor(300,50);
   tft.print("%");  
 }
@@ -214,7 +214,7 @@ void show_bat_level_100(void){
   tft.fillRoundRect(247,42,16,26,3,ILI9341_GREEN);
 }
 
-void show_bat_level_75(void){
+void show_bat_level_85(void){
   tft.fillRoundRect(247,42,16,26,3,ILI9341_BLACK);
   tft.drawRoundRect(245,40,20,30,5,ILI9341_WHITE);
   tft.fillRoundRect(247,50,16,18,3,ILI9341_GREEN);
