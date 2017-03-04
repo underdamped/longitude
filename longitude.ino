@@ -122,12 +122,26 @@ void setup()
     // set the internal ADC with a 16-sample moving average
     analogReadAveraging(16);
 }
-    
+
+// when the user points the lasers at the ends of an object, there is an
+// implicit triangle formed by the two laser dots and the center of the device.
+// since the laser modules tell us the distances to the dots -- giving us the
+// length of each leg -- and the angle sensor tells us the angle between the
+// legs, we can solve for the length between the two laser dots using the law
+// of cosines.  since the lasers are physically offset from each other (not
+// coincident), we add the distance between them to the derived length.
 static double calc_length(double theta, double a, double b)
 {
+    double phi, len;
+    
     // convert degrees to radians
-    double phi = theta * M_PI/180.0;
-    return sqrt( a*a + b*b - 2*a*b*cos(phi) );
+    phi = theta * M_PI/180.0;
+
+    // solve the triangle
+    len = sqrt( a*a + b*b - 2*a*b*cos(phi) );
+
+    // add the laser offset
+    return (len + LASER_OFFSET);
 }
 
 // the idea here is to give the user a way to zero the angle sensor for a more
