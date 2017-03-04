@@ -202,7 +202,8 @@ void show_bat_percent(void)
 { 
   tft.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   tft.setFont(Arial_14);
-  tft.setCursor(265,50);
+  tft.fillRect(267,49,40,20,ILI9341_BLACK); // clear previous percentage
+  tft.setCursor(268,50);
   tft.print(voltage_percentage);
   tft.setCursor(300,50);
   tft.print("%");  

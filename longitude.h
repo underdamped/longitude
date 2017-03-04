@@ -9,7 +9,7 @@
 
 #include <HardwareSerial.h>
 
-#define VERSION 0.6
+#define VERSION 0.7
 
 // we're using active-low logic for the buttons; these make the code more readable
 #define ACTIVE LOW
