@@ -10,7 +10,6 @@
 #include <font_Arial.h>
 #include <font_LiberationSans.h>
 
-
 // For optimized ILI9341_t3 library
 #define TFT_DC      20
 #define TFT_CS      15
@@ -18,9 +17,8 @@
 #define TFT_MOSI    11
 #define TFT_SCLK    13
 #define TFT_MISO    12
+
 ILI9341_t3 tft = ILI9341_t3(TFT_CS, TFT_DC, TFT_RST, TFT_MOSI, TFT_SCLK, TFT_MISO);
-
-
 
 static void show_splash_screen(void);
 static void show_idle_screen(void);
@@ -29,10 +27,11 @@ static void show_measure_screen(void);
 
 void display_setup(void)
 {
-      // initiate Display
+    // initiate Display
     tft.begin();
     tft.setRotation(3); //SPI connectors facing left
 }
+
 // what we show on the screen depends on our state
 void update_display(void)
 {
@@ -40,39 +39,39 @@ void update_display(void)
     {
         case STATE_INIT:
             show_splash_screen();
-			update_bat_level();
-			show_bat_percent();
+            delay(3000); // let them bask in the splashscreen glory
+            update_bat_level();
+            show_bat_percent();
             break;
 
         case STATE_IDLE:
             show_idle_screen();
-			update_bat_level();
-			show_bat_percent();
+            update_bat_level();
+            show_bat_percent();
             break;
 
         case STATE_LASERS_ON:
             show_laser_on_screen();
-			update_bat_level();
-			show_bat_percent();
+            update_bat_level();
+            show_bat_percent();
             break;
 
         case STATE_MEASURE:
             show_measure_screen();
-			update_bat_level();
-			show_bat_percent();
+            update_bat_level();
+            show_bat_percent();
             break;
 
         default:
             show_idle_screen();
-			update_bat_level();
-			show_bat_percent();
+            update_bat_level();
+            show_bat_percent();
     }
 }
 
-// stubs for moises to do his magic
 static void show_splash_screen(void)
 {
-    //Display underlined time name atop the screen  
+  //Display underlined time name atop the screen  
   tft.setFont(Arial_14);
   tft.fillScreen(ILI9341_BLACK);  
   tft.setTextColor(ILI9341_RED, ILI9341_BLACK);
@@ -92,7 +91,7 @@ static void show_splash_screen(void)
   // Tagline
   tft.setTextColor(ILI9341_WHITE, ILI9341_BLACK);
   tft.setFont(Arial_14); 
- tft.setCursor(70,190);
+  tft.setCursor(70,190);
   tft.println("Making Measurement");
   tft.setCursor(95,210);
   tft.println("a Simple Matter"); 
@@ -101,10 +100,10 @@ static void show_splash_screen(void)
 
 static void show_idle_screen(void)
 {
-    // this screen should include the result of the last measurement, if any.
-    // (the variable 'measured_length', which stores the result, has scope here)
+  // this screen should include the result of the last measurement, if any.
+  // (the variable 'measured_length', which stores the result, has scope here)
 
-    //Display underlined time name atop the screen  
+  //Display underlined time name atop the screen  
   tft.setFont(Arial_14);
   tft.fillScreen(ILI9341_BLACK);  
   tft.setTextColor(ILI9341_RED, ILI9341_BLACK);
@@ -140,7 +139,7 @@ static void show_idle_screen(void)
 
 static void show_laser_on_screen(void)
 {
-    //show laser state = ON
+  //show laser state = ON
   tft.setFont(LiberationSans_18); 
   tft.setCursor(20,130);
   tft.fillRect(10,122,240,30,ILI9341_BLACK); //black block to clear pervious message
@@ -158,10 +157,10 @@ static void show_laser_on_screen(void)
 
 static void show_measure_screen(void)
 {
-    // this screen should show the result of the last measurement and
-    // put the processor to sleep for a second or so. after the
-    // processor wakes up, it will be in STATE_IDLE.
-    //Display underlined time name atop the screen  
+  // this screen should show the result of the last measurement and
+  // put the processor to sleep for a second or so. after the
+  // processor wakes up, it will be in STATE_IDLE.
+  // Display underlined time name atop the screen  
   tft.setFont(Arial_14);
   tft.fillScreen(ILI9341_BLACK);  
   tft.setTextColor(ILI9341_RED, ILI9341_BLACK);

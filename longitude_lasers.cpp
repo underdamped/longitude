@@ -29,7 +29,7 @@
 void laser_setup(struct laser *left, struct laser *right)
 {
     // for debugging
-    Serial.begin(115200);
+    //Serial.begin(115200);
     //Serial.printf( "[Longitude] initializing...\n" );
     
     Serial2.begin(115200);
@@ -53,7 +53,7 @@ void laser_on(struct laser *laser)
     
     laser->port->print( LASER_ON );
 
-    Serial.printf( "[LASER %d] (lights on)\n", laser->id );
+    //Serial.printf( "[LASER %d] (lights on)\n", laser->id );
     
     // wait for laser reply code
     while ( laser->port->available() < LASER_REPLY_SIZE );
@@ -69,29 +69,29 @@ void laser_on(struct laser *laser)
 
       if ( retcode == LASER_ON_CONFIRM )
       {
-        Serial.printf( "[LASER %d] received LASER_ON_CONFIRM: ", laser->id );
-        Serial.println( retcode );
+        //Serial.printf( "[LASER %d] received LASER_ON_CONFIRM: ", laser->id );
+        //Serial.println( retcode );
         laser->enabled = true;
         return;
       }
       else // TODO: handle error codes
       {
-        Serial.printf( "[LASER %d] got error code: ", laser->id );
-        Serial.println( retcode );
+        //Serial.printf( "[LASER %d] got error code: ", laser->id );
+        //Serial.println( retcode );
         return;
       }
     } // no LASER_REPLY string (noise on the bus?)
     else
     {
-      Serial.printf( "[LASER %d] (lasers on) received unexpected data: ", laser->id );
-      Serial.println( retcode );
+      //Serial.printf( "[LASER %d] (lasers on) received unexpected data: ", laser->id );
+      //Serial.println( retcode );
     }
 }
 
 // send measurement command to lasers; returns without waiting for the result
 void laser_measure(struct laser *laser)
 {
-    Serial.printf( "[LASER %d] sending measure command\n", laser->id );
+    //Serial.printf( "[LASER %d] sending measure command\n", laser->id );
     laser->port->print( LASER_MEASURE );
 
     return;
@@ -108,8 +108,8 @@ void laser_read_data(struct laser *laser)
 
     retcode = laser->port->readStringUntil( '&' );
 
-    Serial.printf( "[LASER %d] (read) received reply code: ", laser->id );
-    Serial.println( retcode );
+    //Serial.printf( "[LASER %d] (read) received reply code: ", laser->id );
+    //Serial.println( retcode );
     
     if ( retcode == LASER_REPLY )
     {
@@ -118,8 +118,8 @@ void laser_read_data(struct laser *laser)
 
       retcode = laser->port->readStringUntil( '&' );
 
-      Serial.printf( "[LASER %d] measurement code: ", laser->id );
-      Serial.println( retcode );
+      //Serial.printf( "[LASER %d] measurement code: ", laser->id );
+      //Serial.println( retcode );
 
       // parsing errors in the measurement code will be difficult: the laser module
       // designer stupidly uses the same code format for valid and invalid measurements,
@@ -133,18 +133,18 @@ void laser_read_data(struct laser *laser)
           double meters = d / 100000.0;
           
           laser->last_measurement = meters;
-          Serial.printf( "[LASER %d] distance: %d [%0.8f meters]\n", laser->id, d, meters );
+          //Serial.printf( "[LASER %d] distance: %d [%0.8f meters]\n", laser->id, d, meters );
           laser->enabled = false;
           return;
       }
       else // this should never happen
       {
-        Serial.printf( "[LASER %d] received reply, but unknown return code: ", laser->id );
-        Serial.println( retcode );
+        //Serial.printf( "[LASER %d] received reply, but unknown return code: ", laser->id );
+        //Serial.println( retcode );
       }
     }
     else // no LASER_REPLY string
     {
-      Serial.printf( "[LASER %d] (measurement) received unexpected data\n", laser->id );
+      //Serial.printf( "[LASER %d] (measurement) received unexpected data\n", laser->id );
     }
 }

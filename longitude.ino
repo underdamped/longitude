@@ -9,6 +9,7 @@
 
 // local routines
 static double calc_length(double theta, double a, double b);
+static void zero_angle(void);
 
 // the laser "objects"
 struct laser laser_left;
@@ -18,6 +19,8 @@ enum FSM state;
 
 double measured_length;
 double angle;
+
+static double angle_offset = 0;
 
 void loop()
 {
@@ -49,6 +52,7 @@ void loop()
                     state = STATE_LASERS_ON;
                     b_measure.state = INACTIVE; // reset button state
                 }
+
                 break;
 
             case STATE_LASERS_ON: // user is aiming the lasers
@@ -67,6 +71,7 @@ void loop()
 
                     // while the lasers are doing their thing, get the sensor angle
                     angle = get_angle();
+                    angle += angle_offset;
 
                     // finally, check the serial buses for measurement data
                     laser_read_data( &laser_left );
@@ -76,6 +81,13 @@ void loop()
 
                     b_measure.state = INACTIVE;
                     state = STATE_MEASURE;
+                }
+
+                // pressing the mode button while the lasers are on will zero the angle sensor
+                if ( b_mode.state == ACTIVE )
+                {
+                    zero_angle();
+                    b_mode.state = INACTIVE;
                 }
                 break;
                 
@@ -106,6 +118,9 @@ void setup()
     button_setup();
     display_setup();
     laser_setup( &laser_left, &laser_right );
+
+    // set the internal ADC with a 16-sample moving average
+    analogReadAveraging(16);
 }
     
 static double calc_length(double theta, double a, double b)
@@ -114,3 +129,13 @@ static double calc_length(double theta, double a, double b)
     double phi = theta * M_PI/180.0;
     return sqrt( a*a + b*b - 2*a*b*cos(phi) );
 }
+
+// the idea here is to give the user a way to zero the angle sensor for a more
+// precise measurement.  while in the laser-aiming state, pressing the mode button
+// calls this function, which takes an angle measurement and saves the offset for
+// future calculations
+static void zero_angle(void)
+{
+    angle_offset = 0.0 - get_angle();
+}
+

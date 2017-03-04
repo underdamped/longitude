@@ -9,7 +9,7 @@
 
 #include <HardwareSerial.h>
 
-#define VERSION 0.5
+#define VERSION 0.6
 
 // we're using active-low logic for the buttons; these make the code more readable
 #define ACTIVE LOW
@@ -39,13 +39,12 @@ extern struct btn b_UP;
 extern struct btn b_DN;      
 
 
-// global so display routines can see it
+// global so display routines have access
 extern double measured_length;
 extern uint8_t voltage_percentage;
 extern struct laser laser_left;
 extern struct laser laser_right;
 extern double angle;
-
 
 // longitude_lasers.c
 void laser_setup(struct laser *, struct laser *);
