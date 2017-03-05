@@ -8,14 +8,25 @@
 #include "longitude.h"
 
 // local routines
-static double calc_length(double theta, double a, double b);
 static void zero_angle(void);
+static double calc_length(double theta, double a, double b);
+static double to_meter(double);
+static double to_feet(double);
+static double to_inch(double);
 
 // the laser "objects"
 struct laser laser_left;
 struct laser laser_right;
 
+// array of unit conversion stuff, indexed by 'unit' enum
+struct unit_conversion data[] = {
+    { "m",  &to_meter },
+    { "ft", &to_feet },
+    { "in", &to_inch },
+};
+
 enum FSM state;
+enum UNITS unit;
 
 double measured_length;
 double angle;
@@ -121,6 +132,9 @@ void setup()
 
     // set the internal ADC with a 16-sample moving average
     analogReadAveraging(16);
+
+    // set default units display ('meter', 'foot', or 'inch')
+    unit = inch;
 }
 
 // when the user points the lasers at the ends of an object, there is an
@@ -151,5 +165,21 @@ static double calc_length(double theta, double a, double b)
 static void zero_angle(void)
 {
     angle_offset = 0.0 - get_angle();
+}
+
+// unit conversion routines; each is passed a double-precision value in units of meters
+double to_meter(double m)
+{
+    return m;
+}
+
+double to_feet(double m)
+{
+    return (m * 3.280839895013123359L);
+}
+
+double to_inch(double m)
+{
+    return (m * 39.37007874015748031L);
 }
 

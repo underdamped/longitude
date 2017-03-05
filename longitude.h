@@ -40,8 +40,18 @@ extern struct btn b_mode;    //button to switch nmode
 extern struct btn b_UP;      
 extern struct btn b_DN;      
 
+// measurement display units; we use these to index into the data[] conversion array
+extern enum UNITS { meter, foot, inch } unit;
 
-// global so display routines have access
+// unit bookkeeping
+struct unit_conversion
+{
+    const char *id;            // unit identifier, e.g., "ft"
+    double (*convert)(double); // conversion routine
+};
+extern struct unit_conversion data[];
+
+// global vars accessible by the display routines
 extern double measured_length;
 extern uint8_t voltage_percentage;
 extern struct laser laser_left;

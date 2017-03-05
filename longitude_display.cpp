@@ -118,10 +118,10 @@ static void show_idle_screen(void)
   tft.println("Last Measurement:");
   tft.drawRect(10,40,200,65,ILI9341_WHITE); // white rectangle
   tft.setCursor(130,80);
-  tft.println("m"); 
+  tft.println( data[unit].id ); 
   tft.setFont(LiberationSans_28); 
   tft.setCursor(40,70); 
-  tft.println(measured_length);
+  tft.println( data[unit].convert(measured_length) );
   
   //show laser state = OFF
   tft.setFont(LiberationSans_18); 
@@ -175,10 +175,10 @@ static void show_measure_screen(void)
   tft.println("Length:");
   tft.drawRect(10,30,200,110,ILI9341_WHITE);
   tft.setCursor(40,90);
-  tft.print(measured_length);
+  tft.printf( "%0.3f", data[unit].convert(measured_length) );
   tft.setFont(LiberationSans_20);
   tft.setCursor(150,100);
-  tft.println("m");
+  tft.println( data[unit].id );
 
   // Display individual lasers and angle
   tft.setFont(Arial_14);
@@ -189,12 +189,13 @@ static void show_measure_screen(void)
   tft.setCursor(10,200);
   tft.println("Laser 1: ");
   tft.setCursor(90,200);
-  tft.print(laser_right.last_measurement,3);
+  tft.print( data[unit].convert(laser_left.last_measurement), 3 );
   tft.setCursor(170,200);
   tft.println("Laser 2: ");
   tft.setCursor(245,200);
-  tft.print(laser_left.last_measurement,3);
-    return;
+  tft.print( data[unit].convert(laser_right.last_measurement), 3 );
+  
+  return;
 }
 
 // display battery icon and percentage
