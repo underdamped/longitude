@@ -115,6 +115,13 @@ void loop()
                   b_measure.state = INACTIVE;
                   state = STATE_IDLE;
                 }
+                // pressing mode button while the measurement is showing changes units.
+                if ( b_mode.state == ACTIVE )
+                {
+                    unit = (UNITS)((unit + 1) % 3);
+                    update_display();
+                    b_mode.state = INACTIVE;
+                }
                 break;
 
             default: // should never happen, but go to known state if we're totally hosed
@@ -134,7 +141,7 @@ void setup()
     analogReadAveraging(16);
 
     // set default units display ('meter', 'foot', or 'inch')
-    unit = inch;
+    unit = meter;
 }
 
 // when the user points the lasers at the ends of an object, there is an

@@ -61,7 +61,11 @@ void update_display(void)
             update_bat_level();
             show_bat_percent();
             break;
-
+        case WAIT_IDLE:
+            show_measure_screen();
+            update_bat_level();
+            show_bat_percent();
+            break;
         default:
             show_idle_screen();
             update_bat_level();
@@ -117,7 +121,7 @@ static void show_idle_screen(void)
   tft.setCursor(20,50);
   tft.println("Last Measurement:");
   tft.drawRect(10,40,200,65,ILI9341_WHITE); // white rectangle
-  tft.setCursor(130,80);
+  tft.setCursor(160,80);
   tft.println( data[unit].id ); 
   tft.setFont(LiberationSans_28); 
   tft.setCursor(40,70); 
@@ -130,11 +134,14 @@ static void show_idle_screen(void)
   tft.drawRect(10,122,240,30,ILI9341_WHITE); //white rectangle
   
   //show instructions;
-  tft.setCursor(50,180);
-  tft.println("Click Once to Turn");
-  tft.setCursor(90,200);
-  tft.println("Lasers ON");
-    return;
+  tft.setFont(Arial_14);
+  tft.setCursor(10,190);
+  tft.println("Click once to turn lasers ON");
+
+  //show mode change  
+  tft.setCursor(10,210);
+  tft.println("Press Mode for Range Finder");    
+    return;   
 }
 
 static void show_laser_on_screen(void)
@@ -147,11 +154,14 @@ static void show_laser_on_screen(void)
   tft.drawRect(10,122,240,30,ILI9341_WHITE); // white rectangle  
   
   //show instructions;
-  tft.fillRect(40,170,280,100,ILI9341_BLACK); //black block to clear pervious message
-  tft.setCursor(50,180);
-  tft.println("Click Once to Take");
-  tft.setCursor(70,200);
-  tft.println("a Measurement ");
+  tft.setFont(Arial_14);
+  tft.fillRect(10,180,310,100,ILI9341_BLACK); //black block to clear pervious message
+  tft.setCursor(10,190);
+  tft.println("Click once to take a measurement");
+  
+  //show mode change  
+  tft.setCursor(10,210);
+  tft.println("Press Mode to zero laser");
     return;
 }
 
@@ -177,23 +187,28 @@ static void show_measure_screen(void)
   tft.setCursor(40,90);
   tft.printf( "%0.3f", data[unit].convert(measured_length) );
   tft.setFont(LiberationSans_20);
-  tft.setCursor(150,100);
+  tft.setCursor(180,100);
   tft.println( data[unit].id );
 
   // Display individual lasers and angle
   tft.setFont(Arial_14);
-  tft.setCursor(100,170);
+  tft.setCursor(100,150);
   tft.println("Angle: ");
-  tft.setCursor(160,170);
+  tft.setCursor(160,150);
   tft.print(angle);
-  tft.setCursor(10,200);
+  tft.setCursor(10,180);
   tft.println("Laser 1: ");
-  tft.setCursor(90,200);
+  tft.setCursor(90,180);
   tft.print( data[unit].convert(laser_left.last_measurement), 3 );
-  tft.setCursor(170,200);
+  tft.setCursor(170,180);
   tft.println("Laser 2: ");
-  tft.setCursor(245,200);
+  tft.setCursor(245,180);
   tft.print( data[unit].convert(laser_right.last_measurement), 3 );
+
+   //show mode change  
+  tft.setFont(Arial_14);
+  tft.setCursor(10,210);
+  tft.println("Press Mode to change units");
   
   return;
 }
