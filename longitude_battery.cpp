@@ -26,14 +26,14 @@ void get_bat_level(void)
 
   voltage_percentage = map(bat_read, BATTERY_MIN, BATTERY_MAX, 0, 100); // scale 0 to 100%
   
- 	return;
+  return;
 }
 
 void update_bat_level(void)
 {
-	get_bat_level();
+  get_bat_level();
   
-	// display battery icon and level on the upper right corner of the screen.
+  // display battery icon and level on the upper right corner of the screen.
   // the battery icon has less granularity than the % displayed, which has
   // less granularity than the actual battery %.
   if (voltage_percentage > 95)
@@ -49,12 +49,12 @@ void update_bat_level(void)
   else if (voltage_percentage <= 90 && voltage_percentage > 85)
   {
     voltage_percentage = 90;
-		show_bat_level_100();
+    show_bat_level_100();
   }
-	else if (voltage_percentage <= 85 && voltage_percentage > 75)
+  else if (voltage_percentage <= 85 && voltage_percentage > 75)
   {
     voltage_percentage = 85;
-		show_bat_level_85();
+    show_bat_level_85();
   }
   else if (voltage_percentage <= 75 && voltage_percentage > 65)
   {
@@ -66,7 +66,7 @@ void update_bat_level(void)
     voltage_percentage = 60;
     show_bat_level_50();
   }
-	else if (voltage_percentage <= 50 && voltage_percentage > 40)
+  else if (voltage_percentage <= 50 && voltage_percentage > 40)
   {
     voltage_percentage = 50;
 		show_bat_level_50();
@@ -81,15 +81,15 @@ void update_bat_level(void)
     voltage_percentage = 30;
     show_bat_level_25();
   }
-	else if (voltage_percentage <= 25 && voltage_percentage > 15)
+  else if (voltage_percentage <= 25 && voltage_percentage > 15)
   {
     voltage_percentage = 20;
-		show_bat_level_25();
+    show_bat_level_25();
   }
-	else
+  else
   {
     voltage_percentage = 15;
-		show_bat_level_15();
+    show_bat_level_15();
   }
 }
 

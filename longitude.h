@@ -9,7 +9,7 @@
 
 #include <HardwareSerial.h>
 
-#define VERSION 0.9
+#define VERSION 0.91
 
 #define LASER_OFFSET 0.05 // distance in meters between the two lasers
 
@@ -37,8 +37,6 @@ struct btn
 };
 extern struct btn b_measure; //button to measure and select
 extern struct btn b_mode;    //button to switch nmode
-extern struct btn b_UP;      
-extern struct btn b_DN;      
 
 // measurement display units; we use these to index into the data[] conversion array
 extern enum UNITS { meter, foot, inch } unit;
@@ -84,6 +82,5 @@ void show_bat_level_15(void);
 // longitude_battery.c
 void get_bat_level(void);
 void update_bat_level(void); 
-
 
 #endif

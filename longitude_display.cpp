@@ -61,11 +61,13 @@ void update_display(void)
             update_bat_level();
             show_bat_percent();
             break;
+            
         case WAIT_IDLE:
             show_measure_screen();
             update_bat_level();
             show_bat_percent();
             break;
+            
         default:
             show_idle_screen();
             update_bat_level();
@@ -99,7 +101,7 @@ static void show_splash_screen(void)
   tft.println("Making Measurement");
   tft.setCursor(95,210);
   tft.println("a Simple Matter"); 
-    return;
+  return;
 }
 
 static void show_idle_screen(void)
@@ -141,7 +143,7 @@ static void show_idle_screen(void)
   //show mode change  
   tft.setCursor(10,210);
   tft.println("Press Mode for Range Finder");    
-    return;   
+  return;   
 }
 
 static void show_laser_on_screen(void)
@@ -162,7 +164,7 @@ static void show_laser_on_screen(void)
   //show mode change  
   tft.setCursor(10,210);
   tft.println("Press Mode to zero laser");
-    return;
+  return;
 }
 
 static void show_measure_screen(void)
@@ -252,6 +254,5 @@ void show_bat_level_15(void){
   tft.fillRoundRect(247,42,16,26,3,ILI9341_BLACK);
   tft.drawRoundRect(245,40,20,30,5,ILI9341_WHITE);
   tft.fillRoundRect(247,65,16,3,3,ILI9341_RED);
-
 }
 
