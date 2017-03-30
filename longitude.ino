@@ -7,12 +7,19 @@
 #include <math.h>
 #include "longitude.h"
 
+#define BEEP_PIN 3 // speaker output pin
+
+enum FSM state;
+enum UNITS unit;
+enum BEEPS { booting, finished, mode_change, special };
+
 // local routines
 static void zero_angle(void);
 static double calc_length(double theta, double a, double b);
 static double to_meter(double);
 static double to_feet(double);
 static double to_inch(double);
+static void beep(BEEPS);
 
 // the laser "objects"
 struct laser laser_left;
@@ -24,9 +31,6 @@ struct unit_conversion data[] = {
     { "ft", &to_feet },
     { "in", &to_inch },
 };
-
-enum FSM state;
-enum UNITS unit;
 
 double measured_length;
 double angle;
@@ -41,6 +45,7 @@ void loop()
         case STATE_INIT: // start-up state, where we initialize things
 
             setup();
+            beep( booting );
             update_display(); // show splash screen
             state = STATE_IDLE;
             break;
@@ -55,14 +60,40 @@ void loop()
             
             if ( b_measure.state == ACTIVE ) 
             {
+                beep( mode_change );
                 laser_on( &laser_left );
                 laser_on( &laser_right );
 
                 state = STATE_LASERS_ON;
                 b_measure.state = INACTIVE; // reset button state
             }
+            else if ( b_mode.state == ACTIVE )
+            {
+                beep( special );
+                laser_on( &laser_left );
+
+                state = STATE_ONE_LASER;
+            }
 
             break;
+
+        case STATE_ONE_LASER: // user is aiming a single laser
+
+             if ( b_measure.state == ACTIVE )
+             {
+                  beep( mode_change );
+                  laser_measure( &laser_left );
+                  laser_read_data( &laser_left );
+
+                  beep( finished );
+
+                  measured_length = laser_left.last_measurement;
+
+                  b_measure.state = INACTIVE;
+                  state = STATE_MEASURE;
+             }
+
+             break;
 
         case STATE_LASERS_ON: // user is aiming the lasers
 
@@ -74,6 +105,7 @@ void loop()
 
             if ( b_measure.state == ACTIVE ) // user wants a measurement
             {
+                beep( mode_change );
                 // the lasers require time to take a measurement, so we'll send the measure command first
                 laser_measure( &laser_left );
                 laser_measure( &laser_right );
@@ -86,6 +118,8 @@ void loop()
                 laser_read_data( &laser_left );
                 laser_read_data( &laser_right );
 
+                beep( finished );
+
                 measured_length = calc_length( angle, laser_left.last_measurement, laser_right.last_measurement );
 
                 b_measure.state = INACTIVE;
@@ -95,6 +129,7 @@ void loop()
             // pressing the mode button while the lasers are on will zero the angle sensor
             if ( b_mode.state == ACTIVE )
             {
+                beep( special );
                 zero_angle();
                 b_mode.state = INACTIVE;
             }
@@ -110,12 +145,14 @@ void loop()
 
             if ( b_measure.state == ACTIVE ) // user wants to move to main screen
             {
+              beep( mode_change );
               b_measure.state = INACTIVE;
               state = STATE_IDLE;
             }
             // pressing mode button while the measurement is showing changes units.
             if ( b_mode.state == ACTIVE )
             {
+                beep( special );
                 unit = (UNITS)((unit + 1) % 3);
                 update_display();
                 b_mode.state = INACTIVE;
@@ -187,5 +224,49 @@ double to_feet(double m)
 double to_inch(double m)
 {
     return (m * 39.37007874015748031L);
+}
+
+// make some noise
+static void beep(BEEPS action)
+{
+  switch (action)
+  {
+    case booting: // beethoven's 5th
+      tone( BEEP_PIN, 311, 100 );
+      delay( 200 );
+      tone( BEEP_PIN, 311, 100 );
+      delay( 200 );
+      tone( BEEP_PIN, 311, 100 );
+      delay( 200 );
+      tone( BEEP_PIN, 262, 1000 );
+      delay( 1000 );
+      tone( BEEP_PIN, 294, 150 );
+      delay( 200 );
+      tone( BEEP_PIN, 294, 150 );
+      delay( 200 );
+      tone( BEEP_PIN, 294, 150 );
+      delay( 200 );
+      tone( BEEP_PIN, 247, 1250 );
+      break;
+      
+    case finished: // a short trill
+      tone( BEEP_PIN, 2000, 50 );
+      delay( 50 );
+      tone( BEEP_PIN, 3000, 150 );
+      delay( 50 );
+      tone( BEEP_PIN, 1000, 50 );
+      break;
+      
+    case mode_change: // quick beep
+      tone( BEEP_PIN, 5500, 10 );
+      break;
+
+    case special:
+      tone( BEEP_PIN, 300, 10 );
+      break;
+      
+    default:
+      return;
+  }
 }
 
