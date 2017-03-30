@@ -11,21 +11,19 @@
 
 // we measure battery level using the internal Teensy ADC at 10-bit resolution (vref = 3.3V).
 // the nominal 6V battery voltage is dropped to 3V before the ADC pin, which corresponds to
-// an ADC count of 931.  at maximum load, our drop-out voltage is 5.25V, which equals 2.625V
-// after the voltage divider. this corresponds to 815 counts, our minimum battery value.
+// an ADC count of 931.  the device will continue running down to VCC = 3.3V, below which the
+// display stops working. so 3.3V is our minimum battery voltage, corresponding to 512 ADC counts.
 #define BATTERY_MAX    (931)
-#define BATTERY_MIN    (815)
-#define BATTERY_OFFSET (31) // -100 mV of offset error
+#define BATTERY_MIN    (512)
 
 uint8_t voltage_percentage;
 
 void get_bat_level(void)
 {
   uint16_t bat_read = analogRead(bat_pin); // analog pins are input by default, so no need to use pinMode
-  bat_read += BATTERY_OFFSET;
 
   voltage_percentage = map(bat_read, BATTERY_MIN, BATTERY_MAX, 0, 100); // scale 0 to 100%
-  
+
   return;
 }
 

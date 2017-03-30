@@ -52,8 +52,8 @@ void update_display(void)
 
         case STATE_LASERS_ON:
             show_laser_on_screen();
-            update_bat_level();
-            show_bat_percent();
+            //update_bat_level();
+            //show_bat_percent();
             break;
 
         case STATE_MEASURE:
