@@ -9,9 +9,10 @@
 
 #define BEEP_PIN 3 // speaker output pin
 
-enum FSM state;
-enum UNITS unit;
 enum BEEPS { booting, finished, mode_change, special };
+
+// local state variable (EEPROM config)
+static bool unit_changed = false;
 
 // local routines
 static void zero_angle(void);
@@ -21,6 +22,7 @@ static double to_feet(double);
 static double to_inch(double);
 static void beep(BEEPS);
 
+/* globals */
 // the laser "objects"
 struct laser laser_left;
 struct laser laser_right;
@@ -32,10 +34,11 @@ struct unit_conversion data[] = {
     { "in", &to_inch },
 };
 
+enum FSM state;
+enum UNITS unit;
 double measured_length;
 double angle;
-
-static double angle_offset = 0;
+double angle_offset;
 
 void loop()
 {
@@ -53,6 +56,13 @@ void loop()
         case STATE_IDLE: // waiting for user input
 
             update_display(); // show idle screen
+
+            if ( unit_changed )
+            {
+              save_config( "unit" );
+              unit_changed = false;
+            }
+            
             state = WAIT_LASER_ON;                
             break;
             
@@ -67,11 +77,12 @@ void loop()
                 state = STATE_LASERS_ON;
                 b_measure.state = INACTIVE; // reset button state
             }
-            else if ( b_mode.state == ACTIVE )
+            else if ( b_mode.state == ACTIVE ) // rangefinder mode
             {
                 beep( special );
                 laser_on( &laser_left );
 
+                b_mode.state = INACTIVE;
                 state = STATE_ONE_LASER;
             }
 
@@ -81,7 +92,6 @@ void loop()
 
              if ( b_measure.state == ACTIVE )
              {
-                  beep( mode_change );
                   laser_measure( &laser_left );
                   laser_read_data( &laser_left );
 
@@ -101,23 +111,24 @@ void loop()
             state = WAIT_MEASURE;                 
             break;
             
-        case WAIT_MEASURE: // spin here until user presses button
+        case WAIT_MEASURE: // spin here until user presses the red button
 
             if ( b_measure.state == ACTIVE ) // user wants a measurement
             {
-                beep( mode_change );
-                // the lasers require time to take a measurement, so we'll send the measure command first
+                // the lasers require time to take a measurement, so we'll send the measure command first (these return quickly)
                 laser_measure( &laser_left );
                 laser_measure( &laser_right );
 
-                // while the lasers are doing their thing, get the sensor angle
-                angle = get_angle();
-                angle += angle_offset;
-
-                // finally, check the serial buses for measurement data
+                beep( mode_change );
+                
+                // check the serial buses for measurement data (these block)
                 laser_read_data( &laser_left );
                 laser_read_data( &laser_right );
 
+                // the system is quiescent once the lasers are off, so get the angle
+                angle = get_angle();
+                angle += angle_offset;
+                
                 beep( finished );
 
                 measured_length = calc_length( angle, laser_left.last_measurement, laser_right.last_measurement );
@@ -129,8 +140,12 @@ void loop()
             // pressing the mode button while the lasers are on will zero the angle sensor
             if ( b_mode.state == ACTIVE )
             {
-                beep( special );
                 zero_angle();
+                beep( special );
+
+                // store the new offset in the EEPROM
+                save_config( "angle" );
+                
                 b_mode.state = INACTIVE;
             }
             break;
@@ -141,20 +156,21 @@ void loop()
             state = WAIT_IDLE;
             break;
 
-        case WAIT_IDLE: // spin here until user presses button
+        case WAIT_IDLE: // spin here until user presses the red button
 
             if ( b_measure.state == ACTIVE ) // user wants to move to main screen
             {
-              beep( mode_change );
-              b_measure.state = INACTIVE;
-              state = STATE_IDLE;
+                beep( mode_change );
+                b_measure.state = INACTIVE;
+                state = STATE_IDLE;
             }
-            // pressing mode button while the measurement is showing changes units.
-            if ( b_mode.state == ACTIVE )
+            else if ( b_mode.state == ACTIVE ) // user wants to change units
             {
                 beep( special );
                 unit = (UNITS)((unit + 1) % 3);
                 update_display();
+
+                unit_changed = true; // we'll write the new units to the EEPROM in the IDLE state
                 b_mode.state = INACTIVE;
             }
             break;
@@ -176,6 +192,12 @@ void setup()
 
     // set default units display ('meter', 'foot', or 'inch')
     unit = meter;
+
+    // set default angle_offset to 0 (will be overwritten by config if available)
+    angle_offset = 0.0;
+
+    // download config values from EEPROM
+    load_config();
 }
 
 // when the user points the lasers at the ends of an object, there is an
@@ -261,7 +283,7 @@ static void beep(BEEPS action)
       tone( BEEP_PIN, 5500, 10 );
       break;
 
-    case special:
+    case special: // a grunt
       tone( BEEP_PIN, 300, 10 );
       break;
       

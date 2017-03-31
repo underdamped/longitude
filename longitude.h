@@ -9,16 +9,17 @@
 
 #include <HardwareSerial.h>
 
-#define VERSION 0.92
+#define VERSION 0.93
 
 #define LASER_OFFSET 0.058 // distance in meters between the two lasers
+#define bat_pin A0         // we measure battery voltage through analog pin 0
 
 // we're using active-low logic for the buttons; these make the code more readable
 #define ACTIVE LOW
 #define INACTIVE HIGH
 
 // FSM states
-extern enum FSM { STATE_INIT, STATE_IDLE, WAIT_LASER_ON, STATE_LASERS_ON, WAIT_MEASURE, STATE_MEASURE, WAIT_IDLE } state;
+extern enum FSM { STATE_INIT, STATE_IDLE, WAIT_LASER_ON, STATE_LASERS_ON, STATE_ONE_LASER, WAIT_MEASURE, STATE_MEASURE, WAIT_IDLE } state;
 
 // laser data object
 struct laser
@@ -55,6 +56,7 @@ extern uint8_t voltage_percentage;
 extern struct laser laser_left;
 extern struct laser laser_right;
 extern double angle;
+extern double angle_offset;
 
 // longitude_lasers.c
 void laser_setup(struct laser *, struct laser *);
@@ -80,7 +82,12 @@ void show_bat_level_25(void);
 void show_bat_level_15(void);
 
 // longitude_battery.c
-void get_bat_level(void);
 void update_bat_level(void); 
+
+// longitude_config.cpp
+void load_config(void);
+void save_config(const char *);
+void print_config(void);
+void clear_config(void);
 
 #endif
