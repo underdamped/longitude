@@ -7,8 +7,6 @@
 #include "longitude.h"
 #include "Arduino.h"
 
-#define bat_pin A0   // analog pin 0
-
 // we measure battery level using the internal Teensy ADC at 10-bit resolution (vref = 3.3V).
 // the nominal 6V battery voltage is dropped to 3V before the ADC pin, which corresponds to
 // an ADC count of 931.  the device will continue running down to VCC = 3.3V, below which the
@@ -18,7 +16,7 @@
 
 uint8_t voltage_percentage;
 
-void get_bat_level(void)
+static void get_bat_level(void)
 {
   uint16_t bat_read = analogRead(bat_pin); // analog pins are input by default, so no need to use pinMode
 

@@ -15,11 +15,11 @@ void ISR_mode(void);
 
 void button_setup(void)
 {
-  //declare button pins
+  // declare button pins
   b_measure.pin = 5;
   b_mode.pin    = 4;
 
-  //initialize buttons as inactive 
+  // initialize buttons as inactive 
   b_measure.state = INACTIVE;
   b_mode.state    = INACTIVE;
 

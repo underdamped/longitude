@@ -1,5 +1,5 @@
 /*
- * Longitude MCP3421 ADC driver
+ * Longitude MCP3421 ADC driver and angle calculation
  * 
  * Javier Lombillo
  * November 2016
@@ -101,6 +101,8 @@ static uint8_t buff[4];
 static void startConversion(void);
 static int32_t getData(void);
 static bool conversionBusy(void);
+static float get_battery(void);
+static float sensor_max(float);
 
 // returns 1 on success, 0 on failure
 int adc_setup(void)
@@ -125,17 +127,37 @@ int adc_setup(void)
 // ---------------------------
 // volts (x) to degrees (y) is a linear equation: y = mx + b
 //
-// the angle sensor output range is [0.2, 4.8], and the voltage divider before
-// the ADC represents a gain of 0.4.  so the ADC input range is [0.08, 1.92].
+// with a 5V input, the angle sensor's nominal output voltage range is [0.2, 4.8],
+// which is divided down before the ADC to [0.08, 1.92]. the min value corresponds to
+// 0 degrees, and the max to 90 degrees. so, solving for the slope,
+//
+//    m = 90 / (1.92 - 0.08)
+//
+// and the intercept is given by
+//
+//    b = -0.08m
+//
+// therefore,
+//
+//    y = (90 / (1.92 - 0.08)) * x - (90 / (1.92 - 0.08) * 0.08
+//      = (90 * x - 1.8) / (1.92 - 0.02)
+//
+// however, when the sensor input falls below 5V (which corresponds to a battery voltage
+// of about 5.125V), the sensor's max output becomes a linear function of the battery
+// voltage.  thus,
+//
+//    y = (90 * x - 1.8) / (vmax - 0.02)
+//
+// where vmax = 1.92 (for battery > 5.125), or vmax = 0.383*battery - 0.064.
+
 double get_angle(void)
 {
     int32_t result;
     int32_t sum;
     uint16_t count;
-    double voltage;
-    double theta;
-    double m = (double)90 / (1.92 - 0.08); // angle to volts slope
-    double b = -m * 0.08; // linear offset (because 0 degrees == 0.08 V)
+    double voltage; // angle sensor output voltage
+    double vbat;    // battery voltage
+    double vmax;    // sensor's maximum output
 
     sum = 0;
   
@@ -145,20 +167,18 @@ double get_angle(void)
         sum += getData();
     }
   
-    // handle rounding
-    if ( WINDOW_SIZE > 1 )
-    {
-        result = (sum + (WINDOW_SIZE / 2)) / WINDOW_SIZE;
-    }
-    else
-    {
-        result = sum;
-    }
+#if WINDOW_SIZE > 1
+    // round the averaged result
+    result = (sum + (WINDOW_SIZE / 2)) / WINDOW_SIZE;
+#else
+    result = sum;
+#endif
   
     voltage = (double)result * LSB;
-    theta = m * voltage + b;
+    vbat    = (double)get_battery();
+    vmax    = (double)sensor_max( vbat );
 
-    return theta;
+    return (90 * voltage - 1.8) / (vmax - 0.02);
 }
 
 // getData() blocks while waiting for a conversion to finish, parses
@@ -176,12 +196,12 @@ static int32_t getData(void)
     // only 18-bit data needs special handling
     switch (RESOLUTION)
     {
-    case 18:
+      case 18:
         sign1 = buff[0] & 0x80 ? 0xFF : 0;
         data = (sign1 << 24) + (buff[0] << 16) + (buff[1] << 8) + buff[2];
         break;
     
-    default:
+      default:
         sign2 = buff[0] & 0x80 ? 0xFFFF : 0;
         data = (sign2 << 16) + (buff[0] << 8) + buff[1];
         break;
@@ -216,4 +236,29 @@ static void startConversion(void)
 
     if(Wire.getError())
         Serial.print("WRITE FAIL in startConversion()\n");
+}
+
+// the angle sensor's max voltage output scales with the battery voltage
+// once the battery falls below 5.125V.  this function returns the battery
+// voltage as calculated from the (internal) ADC count; we multiply by two
+// because the actual voltage is halved by a resistor divider before the adc
+// sees it:
+//    voltage = count * LSB * 2
+//            = count * (3.3/2^10) * 2
+//            = count * 0.0064453
+static float get_battery(void)
+{
+    return (analogRead(bat_pin) * 0.0064453);
+}
+
+// maximum sensor output is nominally 1.92V (after the voltage divider). however,
+// once battery voltage falls below 5.125V, sensor max becomes a linear function
+// of the battery voltage.  the function in the else clause is a linear interpolation
+// derived from measurements.
+static float sensor_max(float vbat)
+{
+    if ( vbat > 5.125 )
+      return 1.92;
+    else
+      return (0.383 * vbat - 0.064);
 }
