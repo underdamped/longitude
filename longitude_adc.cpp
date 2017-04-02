@@ -140,13 +140,13 @@ int adc_setup(void)
 // therefore,
 //
 //    y = (90 / (1.92 - 0.08)) * x - (90 / (1.92 - 0.08) * 0.08
-//      = (90 * x - 1.8) / (1.92 - 0.02)
+//      = (90 * x - 7.2) / (1.92 - 0.08)
 //
 // however, when the sensor input falls below 5V (which corresponds to a battery voltage
 // of about 5.125V), the sensor's max output becomes a linear function of the battery
 // voltage.  thus,
 //
-//    y = (90 * x - 1.8) / (vmax - 0.02)
+//    y = (90 * x - 7.2) / (vmax - 0.08)
 //
 // where vmax = 1.92 (for battery > 5.125), or vmax = 0.383*battery - 0.064.
 
@@ -178,7 +178,7 @@ double get_angle(void)
     vbat    = (double)get_battery();
     vmax    = (double)sensor_max( vbat );
 
-    return (90 * voltage - 1.8) / (vmax - 0.02);
+    return (90 * voltage - 7.2) / (vmax - 0.08);
 }
 
 // getData() blocks while waiting for a conversion to finish, parses
