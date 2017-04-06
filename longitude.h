@@ -9,7 +9,7 @@
 
 #include <HardwareSerial.h>
 
-#define VERSION 0.93
+#define VERSION 0.94
 
 #define LASER_OFFSET 0.058 // distance in meters between the two lasers
 #define bat_pin A0         // we measure battery voltage through analog pin 0
@@ -74,6 +74,7 @@ void button_setup(void);
 // longitude_display.c
 void display_setup(void);
 void update_display(void);
+void single_laser_message(void);
 void show_bat_percent(void);
 void show_bat_level_100(void);
 void show_bat_level_85(void);

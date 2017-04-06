@@ -62,7 +62,7 @@ void loop()
               save_config( "unit" );
               unit_changed = false;
             }
-            
+
             state = WAIT_LASER_ON;                
             break;
             
@@ -84,6 +84,7 @@ void loop()
 
                 b_mode.state = INACTIVE;
                 state = STATE_ONE_LASER;
+                single_laser_message();
             }
 
             break;
@@ -154,6 +155,7 @@ void loop()
 
             update_display(); // show the measured length
             state = WAIT_IDLE;
+
             break;
 
         case WAIT_IDLE: // spin here until user presses the red button

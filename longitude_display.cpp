@@ -214,7 +214,17 @@ static void show_measure_screen(void)
   
   return;
 }
-
+void single_laser_message(void)
+{
+  tft.setFont(Arial_14);
+  tft.fillRect(10,180,310,100,ILI9341_BLACK); //black block to clear pervious message
+  tft.setCursor(10,190);
+  tft.println("Click once to take a measurement");
+  
+  //show mode change  
+  tft.setCursor(10,210);
+  tft.println("Now in Range Finder Mode");
+}
 // display battery icon and percentage
 void show_bat_percent(void)
 { 
