@@ -6,6 +6,7 @@
  */
 #include <EEPROM.h>
 #include <string.h>
+#include "Arduino.h"
 #include "longitude.h"
 
 #define CONFIG_ADDR_START 0 // base EEPROM address of configuration data
@@ -17,8 +18,8 @@ static const uint16_t CONFIG_SIGNATURE = 0xBEEF;
 static const uint16_t CONFIG_ADDR_ANGLE_OFFSET = CONFIG_ADDR_START        + sizeof CONFIG_SIGNATURE;
 static const uint16_t CONFIG_ADDR_UNIT         = CONFIG_ADDR_ANGLE_OFFSET + sizeof angle_offset;
 
-static void store_double_eeprom(uint16_t, double);
-static double load_double_eeprom(uint16_t);
+static void store_double_eeprom(uint32_t, double);
+static double load_double_eeprom(uint32_t);
 
 // download default configuration from EEPROM
 void load_config(void)
@@ -43,9 +44,13 @@ void load_config(void)
 void save_config(const char *var)
 {
   if ( !strcmp(var, "angle") )
+  {
     store_double_eeprom( CONFIG_ADDR_ANGLE_OFFSET, angle_offset );
+  }
   else if ( !strcmp(var, "unit") )
+  {
     eeprom_write_word( (uint16_t *)CONFIG_ADDR_UNIT, unit );
+  }
 }
 
 // print the config for debugging purposes
@@ -59,7 +64,7 @@ void print_config(void)
   a = load_double_eeprom( CONFIG_ADDR_ANGLE_OFFSET );
   u = eeprom_read_word( (uint16_t *)CONFIG_ADDR_UNIT );
   
-  //Serial.printf( "Config [%X]: angle offset: %0.4f, units: %s\n", sig, a, units[u] );
+  Serial.printf( "Config [%X]: angle offset: %0.4f, sensor floor: %0.4fV units: %s\n", sig, a, units[u] );
 }
 
 // calling this overwrites the magic bytes signature in the EEPROM, forcing a
@@ -70,13 +75,13 @@ void clear_config(void)
 }
 
 // store a double-precision (64-bit) value in the EEPROM
-static void store_double_eeprom(uint16_t addr, double val)
+static void store_double_eeprom(uint32_t addr, double val)
 {
   eeprom_write_block( (const void *)&val, (void *)addr, (uint32_t)sizeof(val) );
 }
 
 // load a double-precision value from the EEPROM
-static double load_double_eeprom(uint16_t addr)
+static double load_double_eeprom(uint32_t addr)
 {
   double x;
   

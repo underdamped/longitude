@@ -1,7 +1,7 @@
 /*
  * Longitude display functions
  *
- * Moises Beato
+ * Moises Beato, Javier Lombillo
  * March 2017
  */
 #include "longitude.h"
@@ -52,14 +52,10 @@ void update_display(void)
 
         case STATE_LASERS_ON:
             show_laser_on_screen();
-            //update_bat_level();
-            //show_bat_percent();
             break;
 
         case STATE_MEASURE:
             show_measure_screen();
-            update_bat_level();
-            show_bat_percent();
             break;
             
         case WAIT_IDLE:
@@ -101,6 +97,13 @@ static void show_splash_screen(void)
   tft.println("Making Measurement");
   tft.setCursor(95,210);
   tft.println("a Simple Matter"); 
+
+  // firmware version info
+  tft.setFont( Arial_12 );
+  tft.setTextColor( ILI9341_RED, ILI9341_BLACK );
+  tft.setCursor( 150, 165 );
+  tft.printf( "v%0.2f", VERSION );
+  
   return;
 }
 
@@ -242,7 +245,7 @@ void show_bat_level_100(void){
   tft.fillRoundRect(247,42,16,26,3,ILI9341_GREEN);
 }
 
-void show_bat_level_85(void){
+void show_bat_level_75(void){
   tft.fillRoundRect(247,42,16,26,3,ILI9341_BLACK);
   tft.drawRoundRect(245,40,20,30,5,ILI9341_WHITE);
   tft.fillRoundRect(247,50,16,18,3,ILI9341_GREEN);

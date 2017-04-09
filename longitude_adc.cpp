@@ -101,8 +101,9 @@ static uint8_t buff[4];
 static void startConversion(void);
 static int32_t getData(void);
 static bool conversionBusy(void);
-static float get_battery(void);
-static float sensor_max(float);
+static double get_sensor_voltage(void);
+static double get_battery(void);
+static double sensor_max(double);
 
 // returns 1 on success, 0 on failure
 int adc_setup(void)
@@ -122,6 +123,7 @@ int adc_setup(void)
 
     return 1;
 }
+
 
 // voltage-to-angle conversion
 // ---------------------------
@@ -150,17 +152,42 @@ int adc_setup(void)
 //
 // where vmax = 1.92 (for battery > 5.125), or vmax = 0.383*battery - 0.064.
 
-double get_angle(void)
+void get_angle(void)
 {
-    int32_t result;
-    int32_t sum;
-    uint16_t count;
     double voltage; // angle sensor output voltage
     double vbat;    // battery voltage
     double vmax;    // sensor's maximum output
 
-    sum = 0;
-  
+    vbat    = get_battery();
+    vmax    = sensor_max( vbat );
+    voltage = get_sensor_voltage();
+
+    // set the global 'angle' var
+    angle = (90.0L * voltage - 7.2L) / (vmax - 0.08L);
+    angle += angle_offset;
+
+    if ( angle < 0 ) angle = 0.0;
+    
+    return;
+}
+
+// the idea here is to give the user a way to zero the angle sensor for a more
+// precise measurement.  while in the laser-aiming state, pressing the mode button
+// calls this function, which takes an angle measurement and saves the offset for
+// future calculations
+void zero_angle(void)
+{
+    get_angle();
+    angle_offset = 0.0 - angle;
+}
+
+// query the ADC for the angle sensor voltage
+static double get_sensor_voltage(void)
+{
+    int32_t sum = 0;
+    int32_t result;
+    uint16_t count;
+
     for ( count = 0; count < WINDOW_SIZE; count++ )
     {
         startConversion();
@@ -173,12 +200,8 @@ double get_angle(void)
 #else
     result = sum;
 #endif
-  
-    voltage = (double)result * LSB;
-    vbat    = (double)get_battery();
-    vmax    = (double)sensor_max( vbat );
 
-    return (90 * voltage - 7.2) / (vmax - 0.08);
+    return ((double)result * LSB);
 }
 
 // getData() blocks while waiting for a conversion to finish, parses
@@ -234,7 +257,7 @@ static void startConversion(void)
     Wire.write(adcConfig |= 128);
     Wire.endTransmission(I2C_STOP);
 
-    if(Wire.getError())
+    if (Wire.getError())
         Serial.print("WRITE FAIL in startConversion()\n");
 }
 
@@ -245,20 +268,20 @@ static void startConversion(void)
 // sees it:
 //    voltage = count * LSB * 2
 //            = count * (3.3/2^10) * 2
-//            = count * 0.0064453
-static float get_battery(void)
+//            = count * 0.0064453125
+static double get_battery(void)
 {
-    return (analogRead(bat_pin) * 0.0064453);
+    return ((double)analogRead(bat_pin) * 0.0064453125L);
 }
 
 // maximum sensor output is nominally 1.92V (after the voltage divider). however,
 // once battery voltage falls below 5.125V, sensor max becomes a linear function
 // of the battery voltage.  the function in the else clause is a linear interpolation
 // derived from measurements.
-static float sensor_max(float vbat)
+static double sensor_max(double vbat)
 {
     if ( vbat > 5.125 )
-      return 1.92;
+      return 1.92L;
     else
-      return (0.383 * vbat - 0.064);
+      return (0.383L * vbat - 0.064L);
 }

@@ -15,7 +15,6 @@ enum BEEPS { booting, finished, mode_change, special };
 static bool unit_changed = false;
 
 // local routines
-static void zero_angle(void);
 static double calc_length(double theta, double a, double b);
 static double to_meter(double);
 static double to_feet(double);
@@ -37,25 +36,24 @@ struct unit_conversion data[] = {
 enum FSM state;
 enum UNITS unit;
 double measured_length;
-double angle;
 double angle_offset;
+double angle;
 
 void loop()
 {
     // program behavior is driven by an FSM
     switch(state)
     {
-        case STATE_INIT: // start-up state, where we initialize things
+        case STATE_INIT:
 
-            setup();
             beep( booting );
-            update_display(); // show splash screen
+            update_display(); // shows splash screen
             state = STATE_IDLE;
             break;
 
-        case STATE_IDLE: // waiting for user input
+        case STATE_IDLE:
 
-            update_display(); // show idle screen
+            update_display(); // shows idle screen
 
             if ( unit_changed )
             {
@@ -66,16 +64,16 @@ void loop()
             state = WAIT_LASER_ON;                
             break;
             
-        case WAIT_LASER_ON:
+        case WAIT_LASER_ON: // spin here until user presses a button
             
-            if ( b_measure.state == ACTIVE ) 
+            if ( b_measure.state == ACTIVE ) // user wants a measurement, light up the fires
             {
                 beep( mode_change );
                 laser_on( &laser_left );
                 laser_on( &laser_right );
 
                 state = STATE_LASERS_ON;
-                b_measure.state = INACTIVE; // reset button state
+                b_measure.state = INACTIVE;
             }
             else if ( b_mode.state == ACTIVE ) // rangefinder mode
             {
@@ -98,7 +96,7 @@ void loop()
 
                   beep( finished );
 
-                  measured_length = laser_left.last_measurement;
+                  measured_length = laser_left.last_measurement + RANGE_OFFSET;
 
                   b_measure.state = INACTIVE;
                   state = STATE_MEASURE;
@@ -116,20 +114,19 @@ void loop()
 
             if ( b_measure.state == ACTIVE ) // user wants a measurement
             {
+                // take the sensitive angle measurement while the system is quiescent
+                get_angle();
+
                 // the lasers require time to take a measurement, so we'll send the measure command first (these return quickly)
                 laser_measure( &laser_left );
                 laser_measure( &laser_right );
 
                 beep( mode_change );
-                
-                // check the serial buses for measurement data (these block)
+
+                // check the serial buses for measurement data (these block until the data arrives)
                 laser_read_data( &laser_left );
                 laser_read_data( &laser_right );
 
-                // the system is quiescent once the lasers are off, so get the angle
-                angle = get_angle();
-                angle += angle_offset;
-                
                 beep( finished );
 
                 measured_length = calc_length( angle, laser_left.last_measurement, laser_right.last_measurement );
@@ -137,18 +134,17 @@ void loop()
                 b_measure.state = INACTIVE;
                 state = STATE_MEASURE;
             }
-
-            // pressing the mode button while the lasers are on will zero the angle sensor
-            if ( b_mode.state == ACTIVE )
+            else if ( b_mode.state == ACTIVE ) // pressing the mode button while the lasers are on will zero the angle sensor
             {
                 zero_angle();
                 beep( special );
 
                 // store the new offset in the EEPROM
                 save_config( "angle" );
-                
+
                 b_mode.state = INACTIVE;
             }
+            
             break;
             
         case STATE_MEASURE:
@@ -179,6 +175,7 @@ void loop()
 
         default: // should never happen, but go to known state if we're totally hosed
             state = STATE_INIT;
+            break;
     }
 }
 
@@ -192,12 +189,12 @@ void setup()
     // set the internal ADC to use a 32-sample moving average
     analogReadAveraging(32);
 
-    // set default units display ('meter', 'foot', or 'inch')
-    unit = meter;
-
-    // set default angle_offset to 0 (will be overwritten by config if available)
+    // set defaults (unit and angle_offset will be overwritten by config, if available)
+    unit = meter; // 'meter', 'foot', or 'inch'
     angle_offset = 0.0;
-
+    measured_length = 0.0;
+    state = STATE_INIT;
+    
     // download config values from EEPROM
     load_config();
 }
@@ -213,25 +210,17 @@ void setup()
 static double calc_length(double theta, double a, double b)
 {
     double phi, len;
-    
-    // convert degrees to radians
-    phi = theta * M_PI / 180.0;
+
+    // convert degrees to radians (where pi/180 = 0.0174...)
+    phi = theta * 0.017453292519943295L;
 
     // solve the triangle
     len = sqrt( a*a + b*b - 2*a*b*cos(phi) );
 
-    // add the laser offset
-    return (len + LASER_OFFSET);
-}
+    len += LASER_OFFSET;
 
-// the idea here is to give the user a way to zero the angle sensor for a more
-// precise measurement.  while in the laser-aiming state, pressing the mode button
-// calls this function, which takes an angle measurement and saves the offset for
-// future calculations
-
-static void zero_angle(void)
-{
-    angle_offset = 0.0 - get_angle();
+    // this linear function, derived from measurements, accounts for systemic error
+    return (1.0426054731466477622531308924L * len + 0.00503707822335417675160720662L);
 }
 
 // unit conversion routines; each is passed a double-precision value in units of meters

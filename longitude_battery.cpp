@@ -50,22 +50,37 @@ void update_bat_level(void)
   else if (voltage_percentage <= 85 && voltage_percentage > 75)
   {
     voltage_percentage = 85;
-    show_bat_level_85();
+    show_bat_level_75();
   }
-  else if (voltage_percentage <= 75 && voltage_percentage > 65)
+  else if (voltage_percentage <= 75 && voltage_percentage > 70)
   {
     voltage_percentage = 75;
-    show_bat_level_85();
+    show_bat_level_75();
   }
-  else if (voltage_percentage <= 65 && voltage_percentage > 50)
+  else if (voltage_percentage <= 70 && voltage_percentage > 65)
+  {
+    voltage_percentage = 70;
+    show_bat_level_75();
+  }
+  else if (voltage_percentage <= 65 && voltage_percentage > 60)
+  {
+    voltage_percentage = 65;
+    show_bat_level_50();
+  }
+  else if (voltage_percentage <= 60 && voltage_percentage > 55)
   {
     voltage_percentage = 60;
     show_bat_level_50();
   }
+  else if (voltage_percentage <= 55 && voltage_percentage > 50)
+  {
+    voltage_percentage = 55;
+		show_bat_level_50();
+  }
   else if (voltage_percentage <= 50 && voltage_percentage > 40)
   {
     voltage_percentage = 50;
-		show_bat_level_50();
+    show_bat_level_50();
   }
   else if (voltage_percentage <= 40 && voltage_percentage > 30)
   {

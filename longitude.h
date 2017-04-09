@@ -9,9 +9,11 @@
 
 #include <HardwareSerial.h>
 
-#define VERSION 0.94
+#define VERSION 0.95
 
 #define LASER_OFFSET 0.058 // distance in meters between the two lasers
+#define RANGE_OFFSET 0.165 // distance in meters from back of device to front of laser
+
 #define bat_pin A0         // we measure battery voltage through analog pin 0
 
 // we're using active-low logic for the buttons; these make the code more readable
@@ -21,7 +23,7 @@
 // FSM states
 extern enum FSM { STATE_INIT, STATE_IDLE, WAIT_LASER_ON, STATE_LASERS_ON, STATE_ONE_LASER, WAIT_MEASURE, STATE_MEASURE, WAIT_IDLE } state;
 
-// laser data object
+// laser object
 struct laser
 {
     uint8_t id;           // identify the laser (0 is left, 1 is right)
@@ -50,13 +52,13 @@ struct unit_conversion
 };
 extern struct unit_conversion data[];
 
-// global vars accessible by the display routines
+// global vars
 extern double measured_length;
 extern uint8_t voltage_percentage;
 extern struct laser laser_left;
 extern struct laser laser_right;
-extern double angle;
 extern double angle_offset;
+extern double angle;
 
 // longitude_lasers.c
 void laser_setup(struct laser *, struct laser *);
@@ -66,7 +68,8 @@ void laser_read_data(struct laser *);
 
 // longitude_adc.c
 int adc_setup(void);
-double get_angle(void);
+void get_angle(void);
+void zero_angle(void);
 
 // longitude_buttons.c
 void button_setup(void);
@@ -77,7 +80,7 @@ void update_display(void);
 void single_laser_message(void);
 void show_bat_percent(void);
 void show_bat_level_100(void);
-void show_bat_level_85(void);
+void show_bat_level_75(void);
 void show_bat_level_50(void);
 void show_bat_level_25(void);
 void show_bat_level_15(void);
@@ -88,7 +91,7 @@ void update_bat_level(void);
 // longitude_config.cpp
 void load_config(void);
 void save_config(const char *);
-void print_config(void);
 void clear_config(void);
+void print_config(void);
 
 #endif
