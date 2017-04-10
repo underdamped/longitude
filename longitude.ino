@@ -218,9 +218,12 @@ static double calc_length(double theta, double a, double b)
     len = sqrt( a*a + b*b - 2*a*b*cos(phi) );
 
     len += LASER_OFFSET;
-
-    // this linear function, derived from measurements, accounts for systemic error
-    return (1.0426054731466477622531308924L * len + 0.00503707822335417675160720662L);
+    if (len > 0.3) //system error was measured at 3 cm for all values over 1 foot
+    {
+      len += 0.03;
+    }
+       
+    return len;
 }
 
 // unit conversion routines; each is passed a double-precision value in units of meters

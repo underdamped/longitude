@@ -9,7 +9,7 @@
 
 #include <HardwareSerial.h>
 
-#define VERSION 0.95
+#define VERSION 1.0
 
 #define LASER_OFFSET 0.058 // distance in meters between the two lasers
 #define RANGE_OFFSET 0.165 // distance in meters from back of device to front of laser
