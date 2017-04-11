@@ -218,7 +218,9 @@ static double calc_length(double theta, double a, double b)
     len = sqrt( a*a + b*b - 2*a*b*cos(phi) );
 
     len += LASER_OFFSET;
-    if (len > 0.3) //system error was measured at 3 cm for all values over 1 foot
+
+    // system error was measured at 3 cm for all values over 30 cm
+    if ( len > 0.3 )
     {
       len += 0.03;
     }

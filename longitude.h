@@ -9,7 +9,7 @@
 
 #include <HardwareSerial.h>
 
-#define VERSION 1.0
+#define VERSION 1.01
 
 #define LASER_OFFSET 0.058 // distance in meters between the two lasers
 #define RANGE_OFFSET 0.165 // distance in meters from back of device to front of laser
@@ -38,8 +38,8 @@ struct btn
     volatile bool state;   // ACTIVE or INACTIVE
     uint8_t pin;   
 };
-extern struct btn b_measure; //button to measure and select
-extern struct btn b_mode;    //button to switch nmode
+extern struct btn b_measure; // button to measure and select
+extern struct btn b_mode;    // button to switch mode
 
 // measurement display units; we use these to index into the data[] conversion array
 extern enum UNITS { meter, foot, inch } unit;

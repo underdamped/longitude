@@ -23,23 +23,34 @@ void button_setup(void)
   b_measure.state = INACTIVE;
   b_mode.state    = INACTIVE;
 
+  // enable the internal pull-up resistors
   pinMode(b_measure.pin, INPUT_PULLUP);
   pinMode(b_mode.pin, INPUT_PULLUP);
   
-  // interrupt on button press (active LOW)
-  attachInterrupt( b_measure.pin, ISR_measure, LOW );
-  attachInterrupt( b_mode.pin, ISR_mode, LOW );
+  // interrupt on button press
+  attachInterrupt( b_measure.pin, ISR_measure, ACTIVE );
+  attachInterrupt( b_mode.pin, ISR_mode, ACTIVE );
 }
 
 void ISR_measure(void)
 {
-    cli();
-    b_measure.state = ACTIVE;
-    sei();    
+    static unsigned long lastIRQ = 0;
+    unsigned long currentIRQ = millis();
+
+    // simple, effective software debounce
+    if ( (currentIRQ - lastIRQ) > 20 )
+        b_measure.state = ACTIVE;
+
+    lastIRQ = currentIRQ;
 }
+
 void ISR_mode(void)
 {
-    cli();
-    b_mode.state = ACTIVE;
-    sei();    
+    static unsigned long lastIRQ = 0;
+    unsigned long currentIRQ = millis();
+
+    if ( (currentIRQ - lastIRQ) > 20 )
+        b_mode.state = ACTIVE;
+
+    lastIRQ = currentIRQ;
 }
