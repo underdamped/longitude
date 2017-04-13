@@ -177,6 +177,7 @@ void get_angle(void)
 // future calculations
 void zero_angle(void)
 {
+    angle_offset = 0.0; // zero the old offset before we calculate a new one
     get_angle();
     angle_offset = 0.0 - angle;
 }

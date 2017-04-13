@@ -249,7 +249,23 @@ static void beep(BEEPS action)
 {
   switch (action)
   {
-    case booting: // beethoven's 5th
+    case booting: // charge!
+      tone( BEEP_PIN, 196, 100 );
+      delay( 150 );
+      tone( BEEP_PIN, 262, 100 );
+      delay( 150 );
+      tone( BEEP_PIN, 330, 100 );
+      delay( 150 );
+      tone( BEEP_PIN, 392, 300 );
+      delay( 300 );
+      tone( BEEP_PIN, 330, 50 );
+      delay( 150 );
+      tone( BEEP_PIN, 392, 500 );
+      delay( 500 );
+      tone( BEEP_PIN, 523, 500 );
+      break;
+
+    case 20: // beethoven's 5th
       tone( BEEP_PIN, 311, 100 );
       delay( 200 );
       tone( BEEP_PIN, 311, 100 );
