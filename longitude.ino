@@ -219,12 +219,24 @@ static double calc_length(double theta, double a, double b)
 
     len += LASER_OFFSET;
 
-    // system error was measured at 3 cm for all values over 30 cm
-    if ( len > 0.3 )
+    /* system error compensation
+     * 
+     * the minimum length we can measure is equal to the LASER_OFFSET, which is
+     * presently 6 cm.  after careful measurement, we determined that the system
+     * error is a constant 6.3 cm for lengths greater than 31 cm.  for lengths
+     * between 7 cm and 31 cm, we performed a linear regression on the data, giving
+     * us a function y = f(x), mapping the true length x to Longitude's notion of
+     * the length y.  taking the inverse of this function gave us the function below.
+     */
+    if ( (len >= 0.07) && (len < 0.31) )
     {
-      len += 0.03;
+        len = 1.065L * len + 0.00324L;
     }
-       
+    else if ( len >= 0.31 ) // for larger lengths, system error is a constant 6.3 cm
+    {
+        len += 0.063L; 
+    }
+    
     return len;
 }
 

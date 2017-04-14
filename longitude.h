@@ -9,10 +9,10 @@
 
 #include <HardwareSerial.h>
 
-#define VERSION 1.02
+#define VERSION 1.03
 
-#define LASER_OFFSET 0.058 // distance in meters between the two lasers
-#define RANGE_OFFSET 0.165 // distance in meters from back of device to front of laser
+#define LASER_OFFSET 0.060L // distance in meters between the two lasers
+#define RANGE_OFFSET 0.165L // distance in meters from back of device to front of laser
 
 #define bat_pin A0         // we measure battery voltage through analog pin 0
 
