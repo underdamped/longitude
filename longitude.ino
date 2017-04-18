@@ -9,7 +9,7 @@
 
 #define BEEP_PIN 3 // speaker output pin
 
-enum BEEPS { booting, finished, mode_change, special };
+enum BEEPS { booting, finished, mode_change, special, beethoven, charge };
 
 // local state variable (EEPROM config)
 static bool unit_changed = false;
@@ -261,7 +261,17 @@ static void beep(BEEPS action)
 {
   switch (action)
   {
-    case booting: // charge!
+    case booting: // g, d, a, b
+      tone( BEEP_PIN, 196, 250 );
+      delay( 300 );
+      tone( BEEP_PIN, 294, 250 );
+      delay( 300 );
+      tone( BEEP_PIN, 440, 1000 );
+      delay( 600 );
+      tone( BEEP_PIN, 494, 1000 );
+      break;
+      
+    case charge: // charge! fanfare
       tone( BEEP_PIN, 196, 100 );
       delay( 150 );
       tone( BEEP_PIN, 262, 100 );
@@ -277,7 +287,7 @@ static void beep(BEEPS action)
       tone( BEEP_PIN, 523, 500 );
       break;
 
-    case 20: // beethoven's 5th
+    case beethoven: // beethoven's 5th
       tone( BEEP_PIN, 311, 100 );
       delay( 200 );
       tone( BEEP_PIN, 311, 100 );
